@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+.env
+pdfs/
+node_modules/
+dist/
+.DS_Store
+frontend/node_modules/
+frontend/dist/

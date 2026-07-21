@@ -52,8 +52,8 @@ def get_vectorstore():
 
         db = Chroma(persist_directory=db_dir, embedding_function=embeddings)
         
-        # Initialize Gemini LLM (Using 1.5-flash as 2.0-flash has limit:0 on some free tiers)
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.2, max_retries=1, google_api_key=api_key)
+        # Initialize Gemini LLM (Using 1.5-flash-latest as bare name throws 404)
+        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash-latest", temperature=0.2, max_retries=1, google_api_key=api_key)
         
         # Setup Retriever
         retriever = db.as_retriever(search_kwargs={"k": 5})

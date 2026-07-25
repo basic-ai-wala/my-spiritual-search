@@ -83,7 +83,7 @@ function App() {
     <div className="app-container">
       <header className="app-header">
         <VscFilePdf size={28} color="#60a5fa" />
-        <h1>Private PDF Search</h1>
+        <h1>अलख निरंजन</h1>
       </header>
 
       <main className="chat-container">

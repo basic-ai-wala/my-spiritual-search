@@ -110,7 +110,8 @@ async def search_pdf(request: SearchQuery):
 
     try:
         logger.info(f"Searching for: {request.query} in {request.language}")
-        response = rag_chain.invoke({
+        # Use ainvoke instead of invoke to prevent blocking the FastAPI async event loop!
+        response = await rag_chain.ainvoke({
             "input": request.query,
             "language": request.language
         })

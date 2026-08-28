@@ -65,8 +65,7 @@ def get_vectorstore():
             "1. You MUST ALWAYS answer EXCLUSIVELY in the Marathi (मराठी) language.\n"
             "2. Read the provided context carefully, but DO NOT just copy-paste or dump the raw text/references.\n"
             "3. Understand the context and give a direct, natural, conversational, and summarized answer to the user's question.\n"
-            "4. If the answer is not in the context, say 'मला या PDF मध्ये ही माहिती सापडली नाही' (I couldn't find this in the PDFs).\n"
-            "5. At the very end of your conversational answer, you can simply mention (Reference: [Book Name], Page [Page Number]).\n\n"
+            "4. If the answer is not in the context, say 'मला या PDF मध्ये ही माहिती सापडली नाही' (I couldn't find this in the PDFs).\n\n"
             "Context:\n{context}"
         )
         prompt = ChatPromptTemplate.from_messages([

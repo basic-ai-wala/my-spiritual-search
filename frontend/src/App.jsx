@@ -97,10 +97,6 @@ function App() {
               ) : (
                 msg.text
               )}
-              
-              {msg.sources && msg.sources.length > 0 && (
-                <SourceDropdown sources={msg.sources} />
-              )}
             </div>
           </div>
         ))}

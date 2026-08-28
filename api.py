@@ -60,13 +60,14 @@ def get_vectorstore():
         
         # Setup Prompt
         system_prompt = (
-            "You are an expert AI assistant for reading ancient spiritual PDFs. "
-            "IMPORTANT: REGARDLESS of whether the user's question is in Hindi, English, or Marathi, "
-            "you MUST ALWAYS provide your final answer EXCLUSIVELY in the Marathi (मराठी) language.\n"
-            "Use the following pieces of retrieved context to answer the question. "
-            "If the answer is not in the context, say 'मला या PDF मध्ये ही माहिती सापडली नाही' (I couldn't find this in the PDFs). "
-            "Do not hallucinate or use outside knowledge. Answer clearly, use Markdown formatting, and cite the Book Name and Page Number from the context.\n\n"
-            "{context}"
+            "You are an expert AI assistant answering questions about ancient spiritual texts. "
+            "IMPORTANT INSTRUCTIONS:\n"
+            "1. You MUST ALWAYS answer EXCLUSIVELY in the Marathi (मराठी) language.\n"
+            "2. Read the provided context carefully, but DO NOT just copy-paste or dump the raw text/references.\n"
+            "3. Understand the context and give a direct, natural, conversational, and summarized answer to the user's question.\n"
+            "4. If the answer is not in the context, say 'मला या PDF मध्ये ही माहिती सापडली नाही' (I couldn't find this in the PDFs).\n"
+            "5. At the very end of your conversational answer, you can simply mention (Reference: [Book Name], Page [Page Number]).\n\n"
+            "Context:\n{context}"
         )
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),

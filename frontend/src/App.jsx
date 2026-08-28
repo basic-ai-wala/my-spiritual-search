@@ -14,6 +14,7 @@ function App() {
     }
   ])
   const [inputValue, setInputValue] = useState('')
+  const [language, setLanguage] = useState('Marathi')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
@@ -41,7 +42,8 @@ function App() {
     try {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const response = await axios.post(`${apiUrl}/api/search`, {
-        query: userMessage.text
+        query: userMessage.text,
+        language: language
       })
 
       const aiMessage = {
@@ -81,9 +83,20 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="app-header">
-        <VscFilePdf size={28} color="#60a5fa" />
-        <h1>अलख निरंजन</h1>
+      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <VscFilePdf size={28} color="#60a5fa" />
+          <h1>अलख निरंजन</h1>
+        </div>
+        <select 
+          value={language} 
+          onChange={(e) => setLanguage(e.target.value)}
+          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #3b82f6', backgroundColor: '#1e293b', color: 'white', cursor: 'pointer', outline: 'none' }}
+        >
+          <option value="Marathi">मराठी</option>
+          <option value="Hindi">हिंदी</option>
+          <option value="English">English</option>
+        </select>
       </header>
 
       <main className="chat-container">

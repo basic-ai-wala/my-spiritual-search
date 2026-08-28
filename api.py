@@ -62,7 +62,7 @@ def get_vectorstore():
         system_prompt = (
             "You are an expert AI assistant answering questions about ancient spiritual texts. "
             "IMPORTANT INSTRUCTIONS:\n"
-            "1. You MUST ALWAYS answer EXCLUSIVELY in the Marathi (मराठी) language.\n"
+            "1. You MUST ALWAYS answer EXCLUSIVELY in the {language} language.\n"
             "2. Read the provided context carefully, but DO NOT just copy-paste or dump the raw text/references.\n"
             "3. Understand the context and give a direct, natural, conversational, and summarized answer to the user's question.\n"
             "4. If the answer is not in the context, say 'मला या PDF मध्ये ही माहिती सापडली नाही' (I couldn't find this in the PDFs).\n"
@@ -87,6 +87,7 @@ async def startup_event():
 
 class SearchQuery(BaseModel):
     query: str
+    language: str = "Marathi"
 
 class SourceContext(BaseModel):
     text: str
@@ -108,8 +109,11 @@ async def search_pdf(request: SearchQuery):
         raise HTTPException(status_code=500, detail="Database not found or could not be loaded. Please ensure ingest_pdfs.py was run.")
 
     try:
-        logger.info(f"Searching for: {request.query}")
-        response = rag_chain.invoke({"input": request.query})
+        logger.info(f"Searching for: {request.query} in {request.language}")
+        response = rag_chain.invoke({
+            "input": request.query,
+            "language": request.language
+        })
         
         sources = []
         import re

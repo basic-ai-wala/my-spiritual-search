@@ -14,7 +14,6 @@ function App() {
     }
   ])
   const [inputValue, setInputValue] = useState('')
-  const [language, setLanguage] = useState('Marathi')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef(null)
 
@@ -43,14 +42,16 @@ function App() {
       const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
       const response = await axios.post(`${apiUrl}/api/search`, {
         query: userMessage.text,
-        language: language
+        language: 'Marathi'
       })
 
       const aiMessage = {
         id: Date.now() + 1,
         type: 'ai',
         text: response.data.answer,
-        sources: response.data.context
+        translations: { 'Marathi': response.data.answer },
+        activeLang: 'Marathi',
+        isTranslating: false
       }
 
       setMessages(prev => [...prev, aiMessage])
@@ -74,6 +75,40 @@ function App() {
     }
   }
 
+  const handleTranslate = async (msgId, targetLang) => {
+    setMessages(prev => prev.map(msg => {
+      if (msg.id === msgId) return { ...msg, isTranslating: true, activeLang: targetLang }
+      return msg
+    }))
+
+    try {
+      const msgToTranslate = messages.find(m => m.id === msgId)
+      const textToTranslate = msgToTranslate.translations?.['Marathi'] || msgToTranslate.text
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+      const response = await axios.post(`${apiUrl}/api/translate`, {
+        text: textToTranslate,
+        target_language: targetLang
+      })
+
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === msgId) {
+          return {
+            ...msg,
+            translations: { ...msg.translations, [targetLang]: response.data.translated_text },
+            isTranslating: false
+          }
+        }
+        return msg
+      }))
+    } catch (error) {
+      setMessages(prev => prev.map(msg => {
+        if (msg.id === msgId) return { ...msg, isTranslating: false }
+        return msg
+      }))
+      alert("Translation failed. Please try again.")
+    }
+  }
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -83,20 +118,9 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="app-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <VscFilePdf size={28} color="#60a5fa" />
-          <h1>अलख निरंजन</h1>
-        </div>
-        <select 
-          value={language} 
-          onChange={(e) => setLanguage(e.target.value)}
-          style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #3b82f6', backgroundColor: '#1e293b', color: 'white', cursor: 'pointer', outline: 'none' }}
-        >
-          <option value="Marathi">मराठी</option>
-          <option value="Hindi">हिंदी</option>
-          <option value="English">English</option>
-        </select>
+      <header className="app-header">
+        <VscFilePdf size={28} color="#60a5fa" />
+        <h1>अलख निरंजन</h1>
       </header>
 
       <main className="chat-container">
@@ -105,7 +129,37 @@ function App() {
             <div className="message-content">
               {msg.type === 'ai' ? (
                 <div className="markdown-content">
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  {msg.isTranslating && !msg.translations?.[msg.activeLang] ? (
+                    <div className="typing-indicator" style={{ padding: '10px 0' }}>
+                      <div className="typing-dot"></div>
+                      <div className="typing-dot"></div>
+                      <div className="typing-dot"></div>
+                    </div>
+                  ) : (
+                    <ReactMarkdown>{msg.translations?.[msg.activeLang] || msg.text}</ReactMarkdown>
+                  )}
+                  {msg.id !== 1 && (
+                    <div className="translation-tabs" style={{ display: 'flex', gap: '8px', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
+                      {['Marathi', 'Hindi', 'English'].map(lang => (
+                        <button
+                          key={lang}
+                          onClick={() => handleTranslate(msg.id, lang)}
+                          style={{
+                            padding: '4px 10px',
+                            fontSize: '12px',
+                            borderRadius: '4px',
+                            border: '1px solid #cbd5e1',
+                            background: msg.activeLang === lang ? '#eff6ff' : 'white',
+                            color: msg.activeLang === lang ? '#2563eb' : '#475569',
+                            cursor: 'pointer',
+                            fontWeight: msg.activeLang === lang ? 'bold' : 'normal'
+                          }}
+                        >
+                          {lang === 'Marathi' ? 'मराठी' : lang === 'Hindi' ? 'हिंदी' : 'English'}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : (
                 msg.text

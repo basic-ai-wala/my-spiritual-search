@@ -148,6 +148,38 @@ async def search_pdf(request: SearchQuery):
         logger.error(f"Error generating answer: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+class TranslateRequest(BaseModel):
+    text: str
+    target_language: str
+
+class TranslateResponse(BaseModel):
+    translated_text: str
+
+@app.post("/api/translate", response_model=TranslateResponse)
+async def translate_text(request: TranslateRequest):
+    try:
+        api_key = os.environ.get("GEMINI_API_KEY")
+        if not api_key or api_key == "your_api_key_here":
+            raise HTTPException(status_code=500, detail="Gemini API Key is not configured.")
+            
+        llm = ChatGoogleGenerativeAI(model="gemini-flash-lite-latest", temperature=0.1, max_retries=0, google_api_key=api_key)
+        
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", "You are a professional translator. Translate the following text into {target_language}. Maintain the original tone and formatting (Markdown). Do NOT add any extra conversational text, just output the translation directly."),
+            ("human", "{text}"),
+        ])
+        
+        chain = prompt | llm
+        response = await chain.ainvoke({
+            "target_language": request.target_language,
+            "text": request.text
+        })
+        
+        return TranslateResponse(translated_text=response.content)
+    except Exception as e:
+        logger.error(f"Error translating text: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.get("/api/health")
 async def health_check():
     return {"status": "ok", "db_loaded": db is not None}
